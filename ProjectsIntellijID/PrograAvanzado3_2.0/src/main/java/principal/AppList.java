@@ -98,14 +98,23 @@ public class AppList {
 
 
     public static void main(String[] args) {
-        List<Integer> list = Arrays.asList(1,2,3,4,5);
-        List<Integer> nuevo = addElem(list, 4);
-        System.out.println(nuevo);
-        List<Integer> nuevo2 = removeElem(list, 4);
-        System.out.println(nuevo2);
+//        List<Integer> list = Arrays.asList(1,2,3,4,5);
+//        List<Integer> nuevo = addElem(list, 4);
+//        System.out.println(nuevo);
+//        List<Integer> nuevo2 = removeElem(list, 4);
+//        System.out.println(nuevo2);
+//
+//        Function<Integer,Integer> factorial = fact;
+//        System.out.println(fact.apply(7));
+//
+//        list.forEach(System.out::println);
 
-        Function<Integer,Integer> factorial = fact;
-        System.out.println(fact.apply(7));
+        System.out.println("-------- Usando mi Lista ---------------");
+
+        Lista<Integer> miLista = Lista.of(1,2,3,4,5);
+
+        miLista.forEach(System.out::println);
+
     }
 }
 

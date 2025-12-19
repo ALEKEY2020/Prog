@@ -1,51 +1,110 @@
 package principal;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-public sealed interface Lista<T> permits Empty, Const{
+public sealed interface Lista<T> permits Empty, Const {
     Lista Empty = new Empty();
+
     boolean isEmpty();
+
     T head();
+
     Lista<T> tail();
 
-    public static <T> Lista<T> of(T head, Lista<T> tail){
+    public static <T> Lista<T> of(T head, Lista<T> tail) {
         return new Const(head, tail);
     }
 
     public static <T> Lista<T> of(T... values) {
         Lista<T> fin = Empty;
-        for(int i = values.length-1 ; i >=0; i--){
+        for (int i = values.length - 1; i >= 0; i--) {
             Lista<T> tmp = Lista.of(values[i], fin);
             fin = tmp;
         }
         return fin;
     }
 
-    default Lista<T> invertir(){
+    default Lista<T> invertir() {
         var tmp = this;
         Lista<T> ret = Empty;
-        while(!tmp.isEmpty()){
+        while (!tmp.isEmpty()) {
             ret = Lista.of(tmp.head(), ret);
             tmp = tmp.tail();
         }
         return ret;
     }
-/*
-    default Integer count() {
 
+    default Lista<T> removeFrist() {
+        return this.tail();
     }
 
-    default Lista<T> append(T elemento){
-
+    default int count() {
+        return isEmpty() ? 0 : 1 + tail().count();
     }
 
-    default Lista<T> insert(int index, T elemento){
+    default void forEach(Consumer<T> con) {
+        if (!this.isEmpty()) {
+            con.accept(this.head());
+            this.tail().forEach(con);
+        }
+    }
 
-   }
-*/
+    default Lista<T> prepend(T value) {
+        //
+        return Lista.of(value, this);
+    }
+
+    default Lista<T> append(T elemento) {
+        return this
+                .invertir()
+                .prepend(elemento)
+                .invertir();
+    }
+
+    default boolean contains(T elemento) {
+        return !isEmpty() && this.head().equals(elemento);
+    }
+
+    default Lista<T> set(int indice, T elemento) {
+        if (indice < 0) throw new IndexOutOfBoundsException();
+
+        return this.isEmpty()
+                ? throwIndex()
+                : indice == 0
+                ? Lista.of(elemento, this.tail())
+                : Lista.of(this.head(), this.tail().set(indice - 1, elemento));
+    }
+
+    private static <T> Lista<T> throwIndex() {
+        throw new IndexOutOfBoundsException();
+    }
+
+    static <T> List<T> copy(List<T> myList) {
+        return new ArrayList<>(myList);
+    }
+
+    default <U> Lista<U> map(Function<T, U> fn) {
+        return this.isEmpty()
+                ? Lista.Empty
+                : Lista.of(fn.apply(this.head()), this.tail().map(fn));
+    }
+
+    default T reduce(T identidad, Function<T,   Function<T,T>> fn) {
+        //VARIABLE ACUMULADORA
+        T accumulator = identidad;
+        var tmp = this;
+        while (!tmp.isEmpty()) {
+            accumulator = fn.apply(accumulator).apply(tmp.head());
+            tmp = tmp.tail();
+        }
+        return accumulator;
+    }
 }
 
-record Const<T>(T head, Lista<T> tail) implements Lista<T>{
+record Const<T>(T head, Lista<T> tail) implements Lista<T> {
 
     @Override
     public boolean isEmpty() {
