@@ -92,7 +92,7 @@ public sealed interface Lista<T> permits Empty, Const {
                 : Lista.of(fn.apply(this.head()), this.tail().map(fn));
     }
 
-    default T reduce(T identidad, Function<T,   Function<T,T>> fn) {
+    default T reduce(T identidad, Function<T, Function<T, T>> fn) {
         //VARIABLE ACUMULADORA
         T accumulator = identidad;
         var tmp = this;
@@ -102,6 +102,58 @@ public sealed interface Lista<T> permits Empty, Const {
         }
         return accumulator;
     }
+
+    default T get(int index) {
+        return index == 0
+                ? this.head()
+                : this.tail().get(index - 1);
+    }
+
+    default Lista<T> drop(int n) {
+        return n <= 0 || this.isEmpty()
+                ? this
+                : this.tail().drop(n - 1);
+
+    }
+
+    default Lista<T> take(int n) {
+        //toma los n primeros elementos y los devuelve en una nuevalista
+
+        // Si n es 0 (o menos) o la lista está vacía, devolvemos una lista vacía.
+        if (n <= 0 || this.isEmpty()) {
+            return Lista.Empty;
+        }
+        // Construimos una nueva lista con la cabeza actual y seguimos tomando n-1 elementos del resto.
+        return Lista.of(this.head(), this.tail().take(n - 1));
+    }
+
+    default Lista<T> concat(Lista<T> lis) {
+        // Caso base: Si "esta" lista (this) está vacía, el resultado es la lista que queremos pegar (lis).
+        if (this.isEmpty()) {
+            return lis;
+        }
+        // Caso recursivo: Reconstruimos la lista actual nodo por nodo.
+        // Cuando lleguemos al final de "this", el caso base pegará "lis" al final.
+        return Lista.of(this.head(), this.tail().concat(lis));
+    }
+
+    default <U> U foldLeft(U identity, Function<U, Function<T, U>> fn){
+        U res = identity;
+        var tmp = this;
+        while (!tmp.isEmpty()){
+            res = fn.apply(res).apply(tmp.head());
+            tmp = tmp.tail();
+        }
+        return res;
+    }
+
+    default <U> U foldRight(U identity, Function<T, Function<U, U>> fn){
+        return this.isEmpty()
+                ? identity
+                : fn.apply(this.head()).apply(this.tail().foldRight(identity, fn));
+    }
+
+
 }
 
 record Const<T>(T head, Lista<T> tail) implements Lista<T> {

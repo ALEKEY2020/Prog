@@ -115,6 +115,54 @@ public class AppList {
 
         miLista.forEach(System.out::println);
 
+        Lista<Integer> nuevaList = miLista.take(2);
+        nuevaList.forEach(System.out::println);
+
+        System.out.println("-----------------------");
+
+        Lista<Integer> listConcat = miLista.concat(nuevaList);
+        listConcat.forEach(System.out::println);
+
+        Function<Integer, String> fn = valor -> "   "+valor.toString();
+
+        Lista<String> listaEnString = miLista.map(fn);
+        System.out.println(listaEnString);
+
+        Function<Double, Function<Lista<Integer>,Double>> promedio = a -> b ->{
+            if (b.isEmpty()) {
+                return 0.0;
+            }
+
+            double suma = a;
+            int contador = 0;
+
+            // Usamos una variable temporal para recorrer sin modificar 'lista'
+            var actual = b;
+
+            while (!actual.isEmpty()) {
+                suma += actual.head(); // Sumamos el valor (Java lo convierte a double automáticamente)
+                contador++;
+                actual = actual.tail();
+            }
+
+            return suma / contador;
+        };
+
+        Lista<String> nombres = Lista.of("Alexis", "Vladimir");
+
+        Function<Lista<String>, String> nombreCompleto = new Function<Lista<String>, String>() {
+            @Override
+            public String apply(Lista<String> stringLista) {
+                if (!stringLista.isEmpty()) {
+
+                }
+                return "";
+            }
+        };
+
+
+
+
     }
 }
 
