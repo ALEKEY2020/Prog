@@ -92,6 +92,18 @@ public sealed interface Lista<T> permits Empty, Const {
                 : Lista.of(fn.apply(this.head()), this.tail().map(fn));
     }
 
+    default <U> Lista<U> mapToFoldLeft(Function<T, U> fn) {
+        return this.isEmpty()
+                ? Lista.Empty
+                : this.tail().mapToFoldLeft(fn);
+    }
+
+    default <U> Lista<U> mapToFoldRight(Function<T, U> fn) {
+        return this.isEmpty()
+                ? Lista.Empty
+                : this.tail().mapToFoldRight(fn);
+    }
+
     default T reduce(T identidad, Function<T, Function<T, T>> fn) {
         //VARIABLE ACUMULADORA
         T accumulator = identidad;
@@ -101,6 +113,11 @@ public sealed interface Lista<T> permits Empty, Const {
             tmp = tmp.tail();
         }
         return accumulator;
+    }
+
+    //reescribiendo reduce con folding
+    default T reduceToFoldLeft(T identidad, Function<T, Function<T, T>> fn) {
+        return this.foldLeft(identidad, t1 -> t2 -> fn.apply(t1).apply(t2));
     }
 
     default T get(int index) {
