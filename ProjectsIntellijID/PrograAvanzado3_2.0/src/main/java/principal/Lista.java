@@ -37,12 +37,20 @@ public sealed interface Lista<T> permits Empty, Const {
         return ret;
     }
 
+    default Lista<T> invertirFold() {
+        return this.foldLeft(Lista.Empty, ls -> t -> ls.prepend(t));
+    }
+
     default Lista<T> removeFrist() {
         return this.tail();
     }
 
     default int count() {
         return isEmpty() ? 0 : 1 + tail().count();
+    }
+
+    default Integer countFold() {
+        return this.foldLeft(0, i -> t -> i+1);
     }
 
     default void forEach(Consumer<T> con) {
@@ -93,15 +101,11 @@ public sealed interface Lista<T> permits Empty, Const {
     }
 
     default <U> Lista<U> mapToFoldLeft(Function<T, U> fn) {
-        return this.isEmpty()
-                ? Lista.Empty
-                : this.tail().mapToFoldLeft(fn);
+        return this.foldLeft(Lista.Empty, ls -> t -> ls.append(fn.apply(t)));
     }
 
-    default <U> Lista<U> mapToFoldRight(Function<T, U> fn) {
-        return this.isEmpty()
-                ? Lista.Empty
-                : this.tail().mapToFoldRight(fn);
+    default Lista<T> appendLeft(T elemento) {
+        return this.foldRight(Lista.of(elemento), t -> ls -> ls.prepend(t));
     }
 
     default T reduce(T identidad, Function<T, Function<T, T>> fn) {
@@ -118,6 +122,10 @@ public sealed interface Lista<T> permits Empty, Const {
     //reescribiendo reduce con folding
     default T reduceToFoldLeft(T identidad, Function<T, Function<T, T>> fn) {
         return this.foldLeft(identidad, t1 -> t2 -> fn.apply(t1).apply(t2));
+    }
+
+    default T reduce(Function<T, Function<T,T>> fn) {
+        return this.tail().foldLeft(this.head(), u -> t -> fn.apply(u).apply(t));
     }
 
     default T get(int index) {
@@ -143,6 +151,9 @@ public sealed interface Lista<T> permits Empty, Const {
         // Construimos una nueva lista con la cabeza actual y seguimos tomando n-1 elementos del resto.
         return Lista.of(this.head(), this.tail().take(n - 1));
     }
+
+
+
 
     default Lista<T> concat(Lista<T> lis) {
         // Caso base: Si "esta" lista (this) está vacía, el resultado es la lista que queremos pegar (lis).
