@@ -1,7 +1,6 @@
 package com.programacion.model;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 interface Resultado {
@@ -9,6 +8,14 @@ interface Resultado {
     public  class Falla implements Resultado {
         private String msn;
         public Falla(String msn) {
+            this.msn = msn;
+        }
+
+        public String getMsn() {
+            return msn;
+        }
+
+        public void setMsn(String msn) {
             this.msn = msn;
         }
     }
@@ -27,13 +34,13 @@ public class EnviarCorreo {
     }
 
 
-    public void testMail(String email){
-        if(emailPattern.matcher(email).matches()){
-            enviarCorreo(email);
-        }else {
-            desplegarMensajeError(String.format("email %s no valido", email));
-        }
-    }
+//    public void testMail(String email){
+//        if(emailPattern.matcher(email).matches()){
+//            enviarCorreo(email);
+//        }else {
+//            desplegarMensajeError(String.format("email %s no valido", email));
+//        }
+//    }
 
     /*final Function<String, Boolean> emailChecker = s -> emailPattern.matcher(s).matches();
     final Predicate<String> emailOk = s -> emailPattern.matcher(s).matches();*/
@@ -49,6 +56,31 @@ public class EnviarCorreo {
         return new Resultado.Falla("El correo es invalido");
       }
     };
+
+    public void testMail(String email){
+        Resultado resultado = emailChecker.apply(email);
+        if(resultado instanceof Resultado.Exito){
+            enviarCorreo(email);
+        }else {
+            Resultado.Falla error = (Resultado.Falla) resultado;
+            desplegarMensajeError(error.getMsn());
+        }
+    }
+
+    public Ejecutable validate(String email){
+        Resultado resultado = emailChecker.apply(email);
+
+//        if(resultado instanceof Resultado.Exito){
+//            return () -> enviarCorreo(email);
+//
+//        }else{
+//            Resultado error = (Resultado.Falla) resultado;
+//            return () -> desplegarMensajeError(resultado.getMsn);
+//        }
+        return (resultado instanceof Resultado.Exito)
+                ? () -> enviarCorreo(email)
+                : () -> desplegarMensajeError(((Resultado.Falla)resultado).getMsn());
+    }
 
 
 }
