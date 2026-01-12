@@ -12,6 +12,6 @@ class EjecutableOk implements Ejecutable {
 class EjecutableFalla implements Ejecutable {
     @Override
     public void exec() {
-        System.out.printf( "ERROR: %s\\n");
+        System.out.printf( "ERROR: %s \\n");
     }
 }
